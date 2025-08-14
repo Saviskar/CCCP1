@@ -18,3 +18,5 @@ public interface StockBatchDAO {
 
     List<StockBatch> getAllBatches();
 }
+
+// I feel like there is a conflic between stockbatch dao and shelfstock dao sort it out
