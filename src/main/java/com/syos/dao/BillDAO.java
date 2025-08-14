@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface BillDAO {
-    int createBill(Bill bill);
-    Bill getBillBtId(int billId);
+    boolean createBill(Bill bill);
+    Bill getBillById(int billId);
     List<Bill> getBillsByDate(LocalDate date);
 }
