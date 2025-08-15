@@ -4,10 +4,7 @@ import com.syos.dao.BillDAO;
 import com.syos.model.Bill;
 import com.syos.util.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +12,12 @@ import java.util.List;
 public class BillDAOImpl implements BillDAO {
 
     @Override
-    public boolean createBill(Bill bill) {
+    public int createBill(Bill bill) {
         String sql = "INSERT INTO Bill (bill_date, total_amount, discount, cash_tendered, change_returned, bill_type) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
         try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setDate(1, java.sql.Date.valueOf(bill.getBillDate()));
             ps.setBigDecimal(2, bill.getTotalAmount());
@@ -29,14 +26,20 @@ public class BillDAOImpl implements BillDAO {
             ps.setBigDecimal(5, bill.getCashReturned());
             ps.setString(6, bill.getBillType().name());
 
-            // return true if at least 1 row was inserted
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
+
+            // Retrieve generated bill ID
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // this is the generated bill ID
+                }
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return false;
+        return 0;
     }
 
     @Override
